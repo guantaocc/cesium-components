@@ -21,6 +21,18 @@ export const debounce = (fn, time) => {
   return debouncedFunction;
 };
 
+export const throttle = (fn, time) => {
+  let last = Date.now();
+  return function (...args) {
+    const context = this;
+    let now = Date.now();
+    if (now - last > time) {
+      fn.apply(context, args);
+      last = now;
+    }
+  };
+};
+
 export const toCamelCase = (str) => {
   return str.replace(/([A-Z])/g, (match, p1) => {
     // 一个捕获组捕获全部，所以match等于p1

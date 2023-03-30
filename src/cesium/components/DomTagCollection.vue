@@ -12,7 +12,7 @@
 
 <script>
 import DomTag from "./DomTag.vue";
-import { findRealParent } from "../utils";
+import { findRealParent, throttle } from "../utils";
 export default {
   props: {
     pointArr: {
@@ -20,38 +20,53 @@ export default {
       // example: [121, 31, 121.2, 31.1, 121.5, 31.2]
       default: () => [],
     },
-    visible: {
-      type: Boolean,
-      default: true,
+    maxHeight: {
+      type: Number,
+      default: Infinity,
     },
   },
   data() {
     return {
       points: [],
+      visible: false,
     };
   },
   components: {
     DomTag,
   },
   mounted() {
-    this.points = Object.freeze(
-      Cesium.Cartesian3.fromDegreesArray(this.pointArr)
-    );
+    this.points = Cesium.Cartesian3.fromDegreesArray(this.pointArr);
+    this.parentContainer = findRealParent(this.$parent);
+    this.viewer = this.parentContainer.viewer;
+    this.bindEvent();
+  },
+  beforeDestroy() {
+    this.removeEvent & this.removeEvent();
   },
   methods: {
+    bindEvent() {
+      const viewer = this.viewer;
+      const throttleFn = throttle(() => {
+        let height = viewer.camera.positionCartographic.height;
+        if (height > this.maxHeight) {
+          this.setVisible(false);
+        } else {
+          this.setVisible(true);
+        }
+      }, 500);
+      this.removeEvent =
+        this.viewer.camera.changed.addEventListener(throttleFn);
+    },
     // 飞入点位
     flyCenter() {
-      this.parentContainer = findRealParent(this.$parent);
       const viewer = this.parentContainer.viewer;
-      const points = Object.freeze(
-        Cesium.Cartesian3.fromDegreesArray(this.pointArr)
-      );
       viewer.scene.camera.flyToBoundingSphere(
-        Cesium.BoundingSphere.fromPoints(points)
+        Cesium.BoundingSphere.fromPoints(this.points)
       );
     },
     setVisible(visible = true) {
-      this.$refs.tags?.setVisible(visible);
+      if (visible == this.visible) return;
+      this.visible = visible;
     },
   },
 };
