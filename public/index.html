@@ -5,7 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="stylesheet" href="./cenium-3d/Build/Cesium/Widgets/widgets.css">
+    <link rel="stylesheet" href="./cenium-3d/Build/Cesium/Widgets/InfoBox/InfoBoxDescription.css">
+   
+    <!-- 引入 3d和 css -->
+    <title>应急指挥系统</title>
   </head>
   <body>
     <noscript>
@@ -13,5 +17,8 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script src="./cenium-3d/Build/Cesium/Cesium.js"></script>
+    <script src="./cenium-3d/lib/CesiumNavigation.umd.js"></script>
+    <script src="./cenium-3d/lib/cesium-popup-es6.umd.js"></script>
   </body>
 </html>

@@ -47,7 +47,7 @@ export const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-export const constantComponentPrefix = "Nk";
+export const constantComponentPrefix = "Cesium";
 
 export const setVueComponentName = (componentName) => {
   return `${constantComponentPrefix}${componentName}`;
