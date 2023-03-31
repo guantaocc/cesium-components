@@ -9,3 +9,5 @@ files.keys().forEach((key) => {
   const componentName = setVueComponentName(name);
   Vue.component(componentName, files(key).default || files(key));
 });
+
+export * from "./utils";

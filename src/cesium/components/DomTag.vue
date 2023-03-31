@@ -6,13 +6,19 @@
     v-if="visible"
   >
     <div class="BlueGradientPnl">
-      <div>{{ text }}</div>
+      <div>
+        <slot :content="text">{{ text }}</slot>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { findRealParent } from "../utils";
+import {
+  findRealParent,
+  cartesian3ToCartesian2,
+  isVisibleByBounds,
+} from "../utils";
 
 export default {
   name: "DomTag",
@@ -21,7 +27,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    trackPos: Object,
+    position: Object,
     text: String,
     alignX: {
       type: String,
@@ -35,63 +41,60 @@ export default {
   data() {
     return {
       tagStyle: {
-        "transform-origin": "left bottom 0px",
-        transform: "matrix(1, 0, 0, 1, 0, 0)",
+        // "transform-origin": "left bottom 0px",
+        // transform: "matrix(1, 0, 0, 1, 0, 0)",
+        left: 0,
+        top: 0,
+        display: "block",
       },
       tagCollection: [],
     };
   },
   mounted() {
-    this.parentContainer = findRealParent(this.$parent);
-    this.bindOnUpdate = this.onUpdate.bind(this);
-    this.setVisible(this.visible);
+    this.viewer = findRealParent(this.$parent).viewer;
+    this.addMapListener();
+    this.addScreenEventHandler();
   },
   beforeDestroy() {
-    this.parentContainer.viewer.scene.preRender.removeEventListener(
-      this.bindOnUpdate
-    );
+    this.eventHandler?.destroy();
   },
   methods: {
-    setVisible(visible = true) {
-      this.visible = visible;
-      if (this.visible) {
-        this.parentContainer.viewer.scene.preRender.addEventListener(
-          this.bindOnUpdate
-        );
-      } else {
-        this.parentContainer.viewer.scene.preRender.removeEventListener(
-          this.bindOnUpdate
-        );
-      }
+    addScreenEventHandler() {
+      this.eventHandler = new Cesium.ScreenSpaceEventHandler(
+        this.viewer.scene.canvas
+      );
     },
-    onUpdate() {
-      if (this.visible) {
-        // 获取屏幕坐标
-        const viewer = this.parentContainer.viewer;
-        const screenPos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-          viewer.scene,
-          this.trackPos
-        );
-        // 获取 viewer 区域的边界，超出边界则隐藏
-        // let tagItem = this.$refs.tagItem;
-        // let rect = tagItem?.getBoundingClientRect();
-        // let maxY = window.innerHeight + rect?.width || 0;
-        // let maxX = window.innerWidth + rect?.height || 0;
-        // let minX = rect?.width ? -rect.width : 0;
-        // let minY = rect?.height ? -rect.height : 0;
-        // if (screenPos.x < minX || screenPos.x > maxX) {
-        //   this.tagStyle.display = "none";
-        //   return;
-        // }
-        // if (screenPos.y < minY || screenPos.y > maxY) {
-        //   this.tagStyle.display = "none";
-        //   return;
-        // }
-        if (screenPos) {
-          // 判断 是否超出屏幕范围，或者在地球的反面
-          this.tagStyle.transform = `matrix(1, 0, 0, 1, ${screenPos.x}, ${screenPos.y})`;
-          this.tagStyle.display = "block";
+    addMapListener() {
+      this.viewer?.scene.postRender.addEventListener(() => {
+        const position = this.position;
+        if (position) {
+          if (isVisibleByBounds(this.viewer, position)) {
+            this.setPosition(position);
+            this.setVisible(true);
+          } else {
+            this.setVisible(false);
+          }
         }
+      });
+    },
+    setVisible(visible) {
+      this.tagStyle.display = visible ? "block" : "none";
+    },
+    // 设置点位置
+    setPosition(cartsian3) {
+      let screenPos = cartesian3ToCartesian2(this.viewer, cartsian3);
+      const element = this.$el;
+      if (screenPos) {
+        let offsetLeft = screenPos.x;
+        let offsetTop = screenPos.y;
+        if (element) {
+          offsetLeft -= element.clientWidth / 2;
+          offsetTop -= element.clientHeight / 2;
+        }
+        // this.tagStyle.transform = `matrix(1, 0, 0, 1, ${screenPos.x}, ${screenPos.y})`;
+        this.tagStyle.display = "block";
+        this.tagStyle.left = offsetLeft + "px";
+        this.tagStyle.top = offsetTop + "px";
       }
     },
   },
@@ -105,6 +108,7 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 9999;
   .BlueGradientPnl {
     text-align: center;
     padding: 5px 30px;
@@ -114,21 +118,21 @@ export default {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    max-height: 130px;
+    // max-height: 130px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
     white-space: nowrap;
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: -60px;
-      left: calc(50% - 3px);
-      display: block;
-      height: 60px;
-      border-right: 3px solid #2bcdbb;
-    }
+    // &::after {
+    //   content: "";
+    //   position: absolute;
+    //   bottom: -60px;
+    //   left: calc(50% - 3px);
+    //   display: block;
+    //   height: 60px;
+    //   border-right: 3px solid #2bcdbb;
+    // }
   }
 }
 </style>

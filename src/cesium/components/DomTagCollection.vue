@@ -4,7 +4,7 @@
       ref="tags"
       v-for="(point, index) in points"
       :key="index"
-      :track-pos="point"
+      :position="point"
       text="示例标签"
     ></dom-tag>
   </div>
@@ -35,7 +35,7 @@ export default {
     DomTag,
   },
   mounted() {
-    this.points = Cesium.Cartesian3.fromDegreesArray(this.pointArr);
+    this.points = Cesium.Cartesian3.fromDegreesArrayHeights(this.pointArr);
     this.parentContainer = findRealParent(this.$parent);
     this.viewer = this.parentContainer.viewer;
     this.bindEvent();

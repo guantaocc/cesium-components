@@ -18,7 +18,6 @@ export default {
     };
   },
   mounted() {
-    Cesium.Ion.defaultAccessToken = this.options?.ION || MapConfig.ION;
     let viewer = new Cesium.Viewer(this.containerId, {
       ...MapConfig.MAPOPTIONS,
     });
@@ -31,6 +30,16 @@ export default {
     viewer.scene.globe.depthTestAgainstTerrain =
       MapConfig.global.depthTestAgainstTerrain; //深度检测
     viewer.scene.highDynamicRange = true;
+
+    // let labelImagery = new Cesium.TiandituImageryProvider({
+    //   name: "天地图中文标记",
+    //   mapStyle: Cesium.TiandituMapsStyle.CIA_C,
+    //   token: "30e0ed17677a95129072c03f6c0fb6c",
+    //   maximumLevel: 17,
+    // });
+    // let labelImageryLayer =
+    //   viewer.imageryLayers.addImageryProvider(labelImagery);
+    // labelImageryLayer.alpha = 1;
 
     // 不要放入 响应式对象上面（对象过大，防止性能问题）
     this.viewer = viewer;

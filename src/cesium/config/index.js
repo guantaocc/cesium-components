@@ -1,8 +1,11 @@
 export const MapConfig = {
-  ION: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiMzJmNDgwZi1iNmQ2LTQ0NWEtOWRkNi0wODkxYzYxYTg0ZDIiLCJpZCI6ODUzMiwic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU1MjIwMjY4OH0.u4d7x0IxZY06ThT4JFmxrfgBxVjQcfI6xXDLu-fsWsY",
   global: {
     enableLighting: false,
     depthTestAgainstTerrain: true,
+  },
+  tokens: {
+    TIANDITU_TOKEN: "30e0ed17677a95129072c03f6c0fb6c",
+    SUPERMAP_TOKEN: "",
   },
   MAPOPTIONS: {
     imageryProvider: new Cesium.TiandituImageryProvider({
